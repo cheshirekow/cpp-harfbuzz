@@ -1,22 +1,11 @@
-find_package(Harfbuzz REQUIRED)
-#find_package(GTKmm REQUIRED)
-#find_package(Boost COMPONENTS iostreams REQUIRED)
+find_package(Harfbuzz )
+ 
+if( Harfbuzz_FOUND )
                                
 include_directories(
     ${Harfbuzz_INCLUDE_DIRS}
 )
                                                                     
-#include_directories( 
-#   ${Boost_INCLUDE_DIRS}
-#    ${GTKmm_INCLUDE_DIRS} 
-#    )
-
-
-#set(LIBS ${LIBS} 
-#   ${Boost_LIBRARIES}
-#    ${GTKmm_LIBRARIES} 
-#    )
-
 add_library( ${CMAKE_PROJECT_NAME}
                 Blob.cpp
                 Direction.cpp
@@ -27,15 +16,14 @@ add_library( ${CMAKE_PROJECT_NAME}
                 Tag.cpp
                 UserData.cpp  )
  
-#add_executable( ${CMAKE_PROJECT_NAME} main.cpp Application.cpp)
+INSTALL( TARGETS ${CMAKE_PROJECT_NAME}
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
 
-#target_link_libraries( ${CMAKE_PROJECT_NAME} ${LIBS})
-
-#configure_file( 
-#    ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.glade 
-#    ${CMAKE_CURRENT_BINARY_DIR}/mainwindow.glade COPYONLY )
-    
-#configure_file( 
-#    ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.xml 
-#    ${CMAKE_CURRENT_BINARY_DIR}/mainwindow.xml COPYONLY )
- 
+else()
+    message( WARNING 
+        "harfbuzz was not found, disabling build of cppharfbuzz library"
+        "you may still build the doc target"  )  
+endif()
