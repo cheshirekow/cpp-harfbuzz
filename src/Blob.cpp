@@ -1,0 +1,119 @@
+/*
+ *  \file   Blob.cpp
+ *
+ *  \date   Jul 19, 2012
+ *  \author Josh Bialkowski (jbialk@mit.edu)
+ *  \brief  
+ */
+
+#include <cppharfbuzz/Blob.h>
+#include <harfbuzz/hb.h>
+#include "UserData_Impl.h"
+
+namespace harfbuzz
+{
+
+
+
+
+
+Blob::Blob(const Blob& other)
+{
+    m_data = other.m_data;
+    hb_blob_reference( static_cast<hb_blob_t*>( m_data ) );
+}
+
+Blob::Blob(const data_t& data)
+{
+    m_data = data;
+}
+
+Blob::~Blob()
+{
+    hb_blob_destroy( static_cast<hb_blob_t*>( m_data ) );
+}
+
+Blob Blob::create_sub(unsigned int offset, unsigned int length)
+{
+    return Blob( (data_t)
+            hb_blob_create_sub_blob( static_cast<hb_blob_t*>( m_data ),
+                                    offset,
+                                    length )
+    );
+}
+
+bool Blob::set_user_data(   UserData::key_t key,
+                            UserData* user_data,
+                            bool replace)
+{
+    return
+        hb_blob_set_user_data(
+                (hb_blob_t*)            m_data,
+                (hb_user_data_key_t*)   key,
+                                        user_data,
+                                        harfbuzmm_destroy_user_data,
+                                        replace
+                );
+}
+
+UserData* Blob::get_user_data(UserData::key_t key)
+{
+    void* hb_data =
+        hb_blob_get_user_data(
+                (hb_blob_t*)            m_data,
+                (hb_user_data_key_t*)   key
+                );
+
+    return (UserData*) hb_data;
+}
+
+void Blob::make_immutable()
+{
+    hb_blob_make_immutable( (hb_blob_t*) m_data );
+}
+
+bool Blob::is_immutable()
+{
+    return hb_blob_is_immutable( (hb_blob_t*) m_data );
+}
+
+unsigned int Blob::get_length()
+{
+    return hb_blob_get_length( (hb_blob_t*) m_data );
+}
+
+const char* Blob::get_data(unsigned int* length)
+{
+    return hb_blob_get_data( (hb_blob_t*) m_data, length );
+}
+
+char* Blob::get_writable_data(unsigned int* length)
+{
+    return hb_blob_get_data_writable( (hb_blob_t*) m_data, length );
+}
+
+Blob Blob::create(const char* data, unsigned int length,
+        MemoryMode mode, UserData* user_data)
+{
+    return Blob(
+        hb_blob_create(
+                                data,
+                                length,
+            (hb_memory_mode_t)  mode,
+                                user_data,
+                                harfbuzmm_destroy_user_data
+        )
+    );
+}
+
+Blob Blob::get_empty()
+{
+    return Blob(
+        hb_blob_get_empty()
+    );
+}
+
+
+
+
+} // namespace harfbuzz
