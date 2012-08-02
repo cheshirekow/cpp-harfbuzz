@@ -17,31 +17,37 @@
  *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Object.cpp
+ *  \file   Handle.cpp
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Object.h>
-#include <harfbuzz/hb.h>
+#include "cppharfbuzz/Handle.h"
 
 namespace harfbuzz
 {
 
-void Object::reference()
+Handle::Handle(void* ptr):
+    m_ptr(ptr)
 {
-    if(m_ptr)
-        hb_object_reference( (hb_object_t*)m_ptr );
 }
 
-
-Object::Object(void* ptr)
+void* Handle::get_ptr()
 {
+    return m_ptr;
+}
 
+const void* Handle::get_ptr() const
+{
+    return m_ptr;
+}
+
+bool Handle::is_valid()
+{
+    return (m_ptr != 0);
 }
 
 
-}
- // namespace harfbuzz 
+} // namespace freetype 

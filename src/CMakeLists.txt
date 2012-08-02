@@ -10,6 +10,7 @@ add_library( ${CMAKE_PROJECT_NAME}
                 Blob.cpp
                 Direction.cpp
                 #Font.cpp
+                Handle.cpp
                 Language.cpp
                 #Object.cpp
                 Script.cpp

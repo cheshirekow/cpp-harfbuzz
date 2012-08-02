@@ -31,19 +31,14 @@ namespace harfbuzz
 {
 
 
-Language::Language()
+Language::Language(void* ptr)
 {
-    m_data = 0;
-}
-
-Language::Language(const data_t& data)
-{
-    m_data = data;
+    m_ptr = ptr;
 }
 
 const char* Language::to_string()
 {
-    return hb_language_to_string( (hb_language_t)m_data );
+    return hb_language_to_string( (hb_language_t)m_ptr );
 }
 
 Language Language::from_string(const char* str, int len)

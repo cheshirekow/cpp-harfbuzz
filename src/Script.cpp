@@ -30,35 +30,36 @@
 namespace harfbuzz
 {
 
-Script::Script()
+Script::Script(uint32_t value)
 {
-    m_data = (data_t)Tag::NONE;
+    m_value = value;
 }
 
-
-Script::Script(const data_t& data)
+uint32_t Script::value()
 {
-    m_data = data;
+    return m_value;
 }
+
 
 Script Script::from_iso15924_tag(const Tag& tag)
 {
-    return Script( (data_t)hb_script_from_iso15924_tag( tag.get_data() ) );
+    return Script( tag.value() );
 }
 
 Script Script::from_string(const char* str, int len)
 {
-    return Script( (data_t)hb_script_from_string(str, len) );
+    return Script( hb_script_from_string(str, len) );
 }
 
 Tag Script::to_iso15924_tag()
 {
-    return Tag( hb_script_to_iso15924_tag( (hb_script_t)m_data) );
+    return Tag( m_value );
 }
 
 Direction Script::get_horizontal_direction()
 {
-    return Direction( (Direction::data_t)hb_script_get_horizontal_direction( (hb_script_t)m_data ) );
+    return (Direction::Value)
+            hb_script_get_horizontal_direction( (hb_script_t)m_value );
 }
 
 } // namespace harfbuzz 

@@ -32,21 +32,27 @@
 namespace harfbuzz
 {
 
+
+/// an unsigned 32-bit integer which encodes four unsigned 8bit integers
+/// in four bitfields
 class Tag
 {
     public:
-        typedef uint32_t    data_t;
-        static const data_t NONE = 0;
+        /// default tag with zero in all fields
+        static const uint32_t NONE = 0;
 
     private:
-        data_t    m_data;
-        Tag();
+        /// the value stored in this tag
+        uint32_t m_value;
 
     public:
+        /// templateized constructor will create a tag valuegiven any
+        /// four values which can be implicitly converted into unsigned
+        /// 8-bit integers
         template < typename T1, typename T2, typename T3, typename T4 >
         Tag( const T1& a, const T2& b, const T3& c, const T4& d )
         {
-            m_data = (data_t)(
+            m_value = (uint32_t)(
                             ( ((uint8_t)(a) )   << 24   )
                         |   ( ((uint8_t)(b))    << 16   )
                         |   ( ((uint8_t)(c))    << 8    )
@@ -54,21 +60,25 @@ class Tag
                         );
         }
 
-        Tag( const data_t& data );
+        /// create a new tag with a sepcific value
+        Tag( uint32_t value=NONE );
 
-        data_t get_data() const;
+        /// return the value stored in this tag
+        uint32_t value() const;
 
-        static Tag none();
-
+        /// create a tag from a given string
         static Tag from_string( const char* str, int len=-1);
 };
 
 
+/// compile-time tag generation, replaces the TAG macro in harfbuzz with
+/// a template which has one static member whose value is the tag generated
+/// by the four template parameters
 template < uint8_t a, uint8_t b, uint8_t c, uint8_t d >
 struct CTimeTag
 {
-    static const Tag::data_t value
-        = (Tag::data_t)(
+    static const uint32_t value
+        = (uint32_t)(
                     ( a << 24   )
                 |   ( b << 16   )
                 |   ( c << 8    )

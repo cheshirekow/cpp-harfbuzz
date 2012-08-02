@@ -30,10 +30,16 @@
 
 namespace harfbuzz {
 
+
+
 /// encapsulates an hb_direction_t object, which is a member of an anonymous
 /// enumeration for directions in which the script is rendered
 /**
- *
+ *  FIXME:  We shouldn't cast enums this way, we should provide a compile-time
+ *          constant mapping that can be optimized out... this way if the
+ *          harfbuzz enum changes, our enum will still support any values which
+ *          haven't changed, and the compiler will alert us to values which
+ *          have disappeared
  */
 class Direction
 {
@@ -41,25 +47,27 @@ class Direction
         /// enumerates directions in which a script is rendered, the two
         /// least significant bits are reserved to indicate validity (they
         /// must be zero for a valid direction)
-        enum EData
+        enum Value
         {
             INVALID = 0,    /// invalid direction
             LTR     = 4,    ///< left to right
             RTL,            ///< right to left
             TTB,            ///< top to bottom
-            BTT             ///< bottom to top
+            BTT,            ///< bottom to top
         };
 
-        typedef EData data_t;
-
     private:
-        Direction();
-        data_t  m_data;
+        Value   m_value;
 
     public:
-        Direction(const data_t& data);
+        /// create a direction from a value, (note, you should probably use
+        /// the predefined constants in the direction:: namespace
+        Direction( Value value );
 
+        /// return a direction which is opposite to this one
         Direction reverse();
+
+        /// return the human readable name for this direction
         const char* to_string();
 
         bool is_horizontal();
@@ -69,8 +77,19 @@ class Direction
         bool is_valid();
 
         static Direction from_string( const char* str, int len);
-
 };
+
+
+namespace direction
+{
+    const Direction INVALID = Direction::INVALID;
+    const Direction LTR     = Direction::LTR;
+    const Direction RTL     = Direction::RTL;
+    const Direction TTB     = Direction::TTB;
+    const Direction BTT     = Direction::BTT;
+}
+
+
 
 } // namespace harfbuzz 
 

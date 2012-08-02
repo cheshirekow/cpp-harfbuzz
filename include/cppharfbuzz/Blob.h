@@ -29,6 +29,7 @@
 
 #include <cppharfbuzz/common.h>
 #include <cppharfbuzz/UserData.h>
+#include <cppharfbuzz/Handle.h>
 
 namespace harfbuzz
 {
@@ -57,7 +58,8 @@ namespace harfbuzz
  *  @note Because of the Blob wraps a reference-counted c-object
  *        it's probably a bad idea to use Blob-pointers.
  */
-class Blob
+class Blob :
+    public Handle
 {
     public:
         enum MemoryMode
@@ -68,28 +70,35 @@ class Blob
             READONLY_MAY_MAKE_WRITABLE
         };
 
-        typedef void* data_t;
-
     private:
-        /// stores a pointer to the hb_blob_t object
-        data_t  m_data;
+        /// increase reference count
+        void reference();
+
+        /// decrease reference count (and possibly destroy)
+        void drop();
 
     public:
+        /// the wrap constructor wraps the hb_blob_t object with a Blob, and
+        /// does not increase the reference count, however the reference will
+        /// be destroyed when the Blob is destroyed, so throw away the original
+        /// pointer when using this constructor
+        Blob( void* ptr, bool reference=false );
+
         /// we need a copy constructor because blobs are reference counted, the
         /// copy constructor increases the reference count of the underlying
         /// hb_blob_t
         Blob( const Blob& other );
 
-        /// the wrap constructor wraps the hb_blob_t object with a Blob, and
-        /// does not increase the reference count, however the reference will
-        /// be destroyed when the Blob is destroyed, so throw away the original
-        /// pointer when using this constructor
-        Blob( const data_t& data );
-
         /// calls hb_blob_destroy which decreases the reference count and
         /// takes care of actual destruction when the last reference is
         /// dropped
         ~Blob();
+
+        /// assignment operator, needed because blobs are reference counted
+        Blob& operator=( const Blob& other );
+
+        /// drop underlying reference and pointer
+        void  invalidate();
 
         /// creates a new sub-blob pointing to a subset of data within this
         /// blob

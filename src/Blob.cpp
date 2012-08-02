@@ -51,28 +51,56 @@ namespace harfbuzz
 
 
 
-
-
-Blob::Blob(const Blob& other)
+void Blob::reference()
 {
-    m_data = other.m_data;
-    hb_blob_reference( static_cast<hb_blob_t*>( m_data ) );
+    if(m_ptr)
+        hb_blob_reference( (hb_blob_t*) m_ptr );
 }
 
-Blob::Blob(const data_t& data)
+void Blob::drop()
 {
-    m_data = data;
+    if(m_ptr)
+        hb_blob_destroy( (hb_blob_t*) m_ptr );
+}
+
+
+
+Blob::Blob(const Blob& other):
+    Handle(other.m_ptr)
+{
+    reference();
+}
+
+Blob::Blob(void* ptr, bool reference):
+    Handle(ptr)
+{
+    m_ptr = ptr;
+    if(reference)
+        this->reference();
 }
 
 Blob::~Blob()
 {
-    hb_blob_destroy( static_cast<hb_blob_t*>( m_data ) );
+    drop();
+}
+
+Blob& Blob::operator=( const Blob& other )
+{
+    m_ptr = other.m_ptr;
+    reference();
+    return *this;
+}
+
+void  Blob::invalidate()
+{
+    drop();
+    m_ptr = 0;
 }
 
 Blob Blob::create_sub(unsigned int offset, unsigned int length)
 {
-    return Blob( (data_t)
-            hb_blob_create_sub_blob( static_cast<hb_blob_t*>( m_data ),
+    return Blob( (void*)
+            hb_blob_create_sub_blob( (hb_blob_t*) m_ptr,
                                     offset,
                                     length )
     );
@@ -84,7 +112,7 @@ bool Blob::set_user_data(   UserData::key_t key,
 {
     return
         hb_blob_set_user_data(
-                (hb_blob_t*)            m_data,
+                (hb_blob_t*)            m_ptr,
                 (hb_user_data_key_t*)   key,
                                         user_data,
                                         harfbuzmm_destroy_user_data,
@@ -96,7 +124,7 @@ UserData* Blob::get_user_data(UserData::key_t key)
 {
     void* hb_data =
         hb_blob_get_user_data(
-                (hb_blob_t*)            m_data,
+                (hb_blob_t*)            m_ptr,
                 (hb_user_data_key_t*)   key
                 );
 
@@ -105,27 +133,27 @@ UserData* Blob::get_user_data(UserData::key_t key)
 
 void Blob::make_immutable()
 {
-    hb_blob_make_immutable( (hb_blob_t*) m_data );
+    hb_blob_make_immutable( (hb_blob_t*) m_ptr );
 }
 
 bool Blob::is_immutable()
 {
-    return hb_blob_is_immutable( (hb_blob_t*) m_data );
+    return hb_blob_is_immutable( (hb_blob_t*) m_ptr );
 }
 
 unsigned int Blob::get_length()
 {
-    return hb_blob_get_length( (hb_blob_t*) m_data );
+    return hb_blob_get_length( (hb_blob_t*) m_ptr );
 }
 
 const char* Blob::get_data(unsigned int* length)
 {
-    return hb_blob_get_data( (hb_blob_t*) m_data, length );
+    return hb_blob_get_data( (hb_blob_t*) m_ptr, length );
 }
 
 char* Blob::get_writable_data(unsigned int* length)
 {
-    return hb_blob_get_data_writable( (hb_blob_t*) m_data, length );
+    return hb_blob_get_data_writable( (hb_blob_t*) m_ptr, length );
 }
 
 Blob Blob::create(const char* data, unsigned int length,

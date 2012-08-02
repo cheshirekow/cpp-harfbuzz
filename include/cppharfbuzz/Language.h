@@ -34,19 +34,14 @@ namespace harfbuzz
 
 class Language
 {
-    public:
-        typedef void* data_t;
-
     private:
-        data_t m_data;
-
-        /// default constructor initializes data to a null pointer
-        Language();
+        void *m_ptr;
 
         /// wrapper constructor wraps an hb language pointer
-        Language(const data_t& data);
+        Language(void* ptr);
 
     public:
+        /// returns a string representation of this language
         const char* to_string();
 
         /// creates a language from a string and returns
