@@ -24,7 +24,10 @@
  *
  *  \mainpage   Documentation
  *
- *
+ *  `cppharfbuzz` is a C++ wrapper around the harfbuzz font shaping library.
+ *  Roughly speaking, a shaper is responsible for taking an encoded text
+ *  string and a font face and generating a list of glyph positions for
+ *  output.
  */
 
 
