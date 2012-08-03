@@ -14,50 +14,59 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with cppharfbuzz.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Language.cpp
+ *  \file   GlyphInfo.h
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Language.h>
-#include <harfbuzz/hb.h>
+#ifndef HARFBUZZ_GLYPHINFO_H_
+#define HARFBUZZ_GLYPHINFO_H_
+
+#include <cppharfbuzz/common.h>
+#include <cppharfbuzz/Handle.h>
 
 namespace harfbuzz
 {
 
 
-Language::Language(void* ptr):
-    Handle(ptr)
+
+class GlyphInfo:
+    public Handle
 {
+    public:
+        GlyphInfo(void* ptr);
 
-}
+        codepoint_t     codepoint();
+        mask_t          mask();
+        uint32_t        cluster();
+};
 
-const char* Language::to_string()
+
+class GlyphInfoArray:
+    public Handle
 {
-    return hb_language_to_string( (hb_language_t)m_ptr );
-}
+    private:
+        unsigned int m_length;
 
-Language Language::from_string(const char* str, int len)
-{
-    return Language( hb_language_from_string(str,len) );
-}
+    public:
+        GlyphInfoArray( void* ptr, unsigned int length );
 
-Language Language::get_default()
-{
-    return Language( hb_language_get_default() );
-}
+        unsigned int size();
 
-Language Language::invalid()
-{
-    return Language( 0 );
-}
+        GlyphInfo operator[](int idx);
+};
 
 
 
 
-} // namespace harfbuzz
+
+
+
+} // namespace harfbuzz 
+
+#endif // GLYPHINFO_H_

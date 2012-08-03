@@ -14,50 +14,43 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with cppharfbuzz.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Language.cpp
+ *  \file   GlyphExtents.h
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Language.h>
-#include <harfbuzz/hb.h>
+#ifndef HARFBUZZ_GLYPHEXTENTS_H_
+#define HARFBUZZ_GLYPHEXTENTS_H_
+
+#include <cppharfbuzz/Handle.h>
 
 namespace harfbuzz
 {
 
-
-Language::Language(void* ptr):
-    Handle(ptr)
+class GlyphExtents :
+    public Handle
 {
+    public:
+        GlyphExtents(void* ptr);
 
-}
+        position_t& x_bearing();
+        const position_t& x_bearing() const;
 
-const char* Language::to_string()
-{
-    return hb_language_to_string( (hb_language_t)m_ptr );
-}
+        position_t& y_bearing();
+        const position_t& y_bearing() const;
 
-Language Language::from_string(const char* str, int len)
-{
-    return Language( hb_language_from_string(str,len) );
-}
+        position_t& width();
+        const position_t& width() const;
 
-Language Language::get_default()
-{
-    return Language( hb_language_get_default() );
-}
+        position_t& height();
+        const position_t& height() const;
+};
 
-Language Language::invalid()
-{
-    return Language( 0 );
-}
+} // namespace freetype 
 
-
-
-
-} // namespace harfbuzz
+#endif // GLYPHEXTENTS_H_

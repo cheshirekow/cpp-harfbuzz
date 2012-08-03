@@ -1,19 +1,32 @@
-find_package(Harfbuzz )
-find_package(CppFreetype )
+find_package( Harfbuzz )
+find_package( CppFreetype )
+find_package( Freetype2 )
+find_package( SigC++ )
  
-if( (Harfbuzz_FOUND) AND (CppFreetype_FOUND) )
+if( (Harfbuzz_FOUND) 
+    AND (CppFreetype_FOUND)
+    AND (Freetype2_FOUND) 
+    AND (SigC++_FOUND) )
                                
 include_directories(
     ${Harfbuzz_INCLUDE_DIRS}
+    ${CppFreetype_INCLUDE_DIRS}
+    ${SigC++_INCLUDE_DIRS}
 )
                                                                     
 add_library( ${CMAKE_PROJECT_NAME}
+                shape.cpp
                 Blob.cpp
+                Buffer.cpp
                 Direction.cpp
-                #Font.cpp
+                Face.cpp
+                Feature.cpp
+                Font.cpp
+                GlyphInfo.cpp
+                GlyphExtents.cpp
+                GlyphPosition.cpp
                 Handle.cpp
                 Language.cpp
-                #Object.cpp
                 Script.cpp
                 Tag.cpp
                 UserData.cpp  )
@@ -25,15 +38,26 @@ INSTALL( TARGETS ${CMAKE_PROJECT_NAME}
 )
 
 else()
+    set( MISSING )
+
     if( NOT (Harfbuzz_FOUND) )
-        message( WARNING 
-            "harfbuzz was not found, disabling build of cppharfbuzz library"
-            "you may still build the doc target"  )  
+        set( MISSING ${MISSING} harfbuzz )
     endif()
     
-    if( NOT( CppFreetype_FOUND ) )
-        message( WARNING 
-            "cppfreetype was not found, disabling build of cppharfbuzz library"
-            "you may still build the doc target"  )
+    if( NOT (CppFreetype_FOUND) )
+        set( MISSING ${MISSING} cppfreetype )
     endif()
+    
+    if( NOT (Freetype2_FOUND) )
+        set( MISSING ${MISSING} freetype2 )
+    endif()
+    
+    if( NOT (SigC++_FOUND) )
+        set( MISSING ${MISSING} sigc++ )
+    endif()
+    
+    message( WARNING
+            "The following packages are missing: ${MISSING}"
+            "disabling build of cppharfbuzz library "
+            "you may still build the doc target "  )
 endif()

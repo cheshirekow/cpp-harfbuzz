@@ -105,21 +105,21 @@ class Blob :
         Blob create_sub( unsigned int   offset,
                          unsigned int   length );
 
-        /// assign new user data to the blob, inserting it into the base
-        /// class's user data array
-        bool set_user_data( UserData::key_t     key,
-                            UserData*           user_data,
-                            bool                replace );
+        // assign new user data to the blob, inserting it into the base
+        // class's user data array
+        // bool set_user_data( UserData::key_t     key,
+        //                    UserData*           user_data,
+        //                    bool                replace );
 
-        /// return the user data associated with the specified key
-        /**
+        // return the user data associated with the specified key
+        /*
          *  @note   be careful as this function uses an unsafe cast from a
          *          void pointer returned by hb_blob_get_user_data. If the
          *          data was inserted using the raw hg_blob_set_user_data, then
          *          this cast is invalid, so only retrieve objects using
          *          this method if you inserted them using this method.
          */
-        UserData* get_user_data( UserData::key_t key );
+        //UserData* get_user_data( UserData::key_t key );
 
         void  make_immutable();
         bool  is_immutable();
@@ -142,7 +142,8 @@ class Blob :
                         const char*         data,
                         unsigned int        length,
                         MemoryMode          mode,
-                        UserData*           user_data);
+                        void*               user_data,
+                        destroy_func_t      user_destroy );
 
         /// not sure what an empty blob is... maybe one with zero size?
         static Blob get_empty();

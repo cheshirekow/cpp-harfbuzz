@@ -8,7 +8,7 @@
 include(LibFindMacros)
 
 # Include dir
-find_path(CppFontconfig_FT2BUILD_INCLUDE_DIR
+find_path(CppFontconfig_INCLUDE_DIR
   NAMES cppfontconfig/cppfontconfig.h
 )
 

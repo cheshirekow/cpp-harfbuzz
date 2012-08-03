@@ -106,30 +106,30 @@ Blob Blob::create_sub(unsigned int offset, unsigned int length)
     );
 }
 
-bool Blob::set_user_data(   UserData::key_t key,
-                            UserData* user_data,
-                            bool replace)
-{
-    return
-        hb_blob_set_user_data(
-                (hb_blob_t*)            m_ptr,
-                (hb_user_data_key_t*)   key,
-                                        user_data,
-                                        harfbuzmm_destroy_user_data,
-                                        replace
-                );
-}
+//bool Blob::set_user_data(   UserData::key_t key,
+//                            UserData* user_data,
+//                            bool replace)
+//{
+//    return
+//        hb_blob_set_user_data(
+//                (hb_blob_t*)            m_ptr,
+//                (hb_user_data_key_t*)   key,
+//                                        user_data,
+//                                        harfbuzmm_destroy_user_data,
+//                                        replace
+//                );
+//}
 
-UserData* Blob::get_user_data(UserData::key_t key)
-{
-    void* hb_data =
-        hb_blob_get_user_data(
-                (hb_blob_t*)            m_ptr,
-                (hb_user_data_key_t*)   key
-                );
-
-    return (UserData*) hb_data;
-}
+//UserData* Blob::get_user_data(UserData::key_t key)
+//{
+//    void* hb_data =
+//        hb_blob_get_user_data(
+//                (hb_blob_t*)            m_ptr,
+//                (hb_user_data_key_t*)   key
+//                );
+//
+//    return (UserData*) hb_data;
+//}
 
 void Blob::make_immutable()
 {
@@ -156,8 +156,12 @@ char* Blob::get_writable_data(unsigned int* length)
     return hb_blob_get_data_writable( (hb_blob_t*) m_ptr, length );
 }
 
-Blob Blob::create(const char* data, unsigned int length,
-        MemoryMode mode, UserData* user_data)
+Blob Blob::create(
+        const char*     data,
+        unsigned int    length,
+        MemoryMode      mode,
+        void*           user_data,
+        destroy_func_t  user_destroy)
 {
     return Blob(
         hb_blob_create(
@@ -165,7 +169,7 @@ Blob Blob::create(const char* data, unsigned int length,
                                 length,
             (hb_memory_mode_t)  mode,
                                 user_data,
-                                harfbuzmm_destroy_user_data
+                                user_destroy
         )
     );
 }

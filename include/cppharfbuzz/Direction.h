@@ -67,6 +67,8 @@ class Direction
         /// return a direction which is opposite to this one
         Direction reverse();
 
+        Value value(){ return m_value; }
+
         /// return the human readable name for this direction
         const char* to_string();
 

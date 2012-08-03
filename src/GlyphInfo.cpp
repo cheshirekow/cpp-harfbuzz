@@ -17,47 +17,61 @@
  *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Language.cpp
+ *  \file   GlyphInfo.cpp
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Language.h>
+#include "cppharfbuzz/GlyphInfo.h"
 #include <harfbuzz/hb.h>
 
 namespace harfbuzz
 {
 
 
-Language::Language(void* ptr):
+GlyphInfo::GlyphInfo(void* ptr):
     Handle(ptr)
 {
 
 }
 
-const char* Language::to_string()
+
+
+codepoint_t GlyphInfo::codepoint()
 {
-    return hb_language_to_string( (hb_language_t)m_ptr );
+    return ((hb_glyph_info_t*)m_ptr)->codepoint;
 }
 
-Language Language::from_string(const char* str, int len)
+mask_t GlyphInfo::mask()
 {
-    return Language( hb_language_from_string(str,len) );
+    return ((hb_glyph_info_t*)m_ptr)->mask;
 }
 
-Language Language::get_default()
+uint32_t GlyphInfo::cluster()
 {
-    return Language( hb_language_get_default() );
+    return ((hb_glyph_info_t*)m_ptr)->cluster;
 }
 
-Language Language::invalid()
+GlyphInfoArray::GlyphInfoArray(void* ptr, unsigned int length):
+    Handle(ptr),
+    m_length(length)
 {
-    return Language( 0 );
+
+}
+
+unsigned int GlyphInfoArray::size()
+{
+    return m_length;
+}
+
+GlyphInfo GlyphInfoArray::operator [](int idx)
+{
+    return GlyphInfo(
+        ((hb_glyph_info_t*)m_ptr) + idx
+    );
 }
 
 
-
-
-} // namespace harfbuzz
+} // namespace harfbuzz 

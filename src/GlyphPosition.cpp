@@ -17,47 +17,71 @@
  *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Language.cpp
+ *  \file   GlyphPosition.cpp
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Language.h>
+#include "cppharfbuzz/GlyphPosition.h"
 #include <harfbuzz/hb.h>
 
 namespace harfbuzz
 {
 
 
-Language::Language(void* ptr):
+GlyphPosition::GlyphPosition( void* ptr ):
     Handle(ptr)
 {
-
 }
 
-const char* Language::to_string()
+
+
+
+
+position_t GlyphPosition::x_advance()
 {
-    return hb_language_to_string( (hb_language_t)m_ptr );
+    return ((hb_glyph_position_t*)m_ptr)->x_advance;
 }
 
-Language Language::from_string(const char* str, int len)
+position_t GlyphPosition::y_advance()
 {
-    return Language( hb_language_from_string(str,len) );
+    return ((hb_glyph_position_t*)m_ptr)->y_advance;
 }
 
-Language Language::get_default()
+position_t GlyphPosition::x_offset()
 {
-    return Language( hb_language_get_default() );
+    return ((hb_glyph_position_t*)m_ptr)->x_offset;
 }
 
-Language Language::invalid()
+position_t GlyphPosition::y_offset()
 {
-    return Language( 0 );
+    return ((hb_glyph_position_t*)m_ptr)->y_offset;
 }
 
 
 
 
-} // namespace harfbuzz
+GlyphPositionArray::GlyphPositionArray(void* ptr, unsigned int length ):
+    Handle(ptr),
+    m_length(length)
+{
+}
+
+
+unsigned int GlyphPositionArray::size()
+{
+    return m_length;
+}
+
+GlyphPosition GlyphPositionArray::operator [](int idx)
+{
+    return GlyphPosition( ((hb_glyph_position_t*)m_ptr) + idx );
+}
+
+
+
+
+
+} // namespace harfbuzz 

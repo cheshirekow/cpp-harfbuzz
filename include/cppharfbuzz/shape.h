@@ -14,50 +14,51 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with cppharfbuzz.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Language.cpp
+ *  \file   shape.h
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Language.h>
-#include <harfbuzz/hb.h>
+#ifndef HARFBUZZ_SHAPE_H_
+#define HARFBUZZ_SHAPE_H_
+
+#include <cppharfbuzz/common.h>
+#include <cppharfbuzz/Buffer.h>
+#include <cppharfbuzz/Feature.h>
+#include <cppharfbuzz/Font.h>
 
 namespace harfbuzz
 {
 
+    void shape( Font                    font,
+                Buffer                  buffer,
+                const FeatureArray&     features );
 
-Language::Language(void* ptr):
-    Handle(ptr)
-{
+    bool shape_full( Font                   font,
+                     Buffer                 buffer,
+                     const FeatureArray&    features,
+                     const char* const*     shaper_list );
 
-}
-
-const char* Language::to_string()
-{
-    return hb_language_to_string( (hb_language_t)m_ptr );
-}
-
-Language Language::from_string(const char* str, int len)
-{
-    return Language( hb_language_from_string(str,len) );
-}
-
-Language Language::get_default()
-{
-    return Language( hb_language_get_default() );
-}
-
-Language Language::invalid()
-{
-    return Language( 0 );
+    const char** list_shapers();
 }
 
 
 
 
-} // namespace harfbuzz
+
+
+
+
+
+
+
+
+
+
+
+#endif // SHAPE_H_

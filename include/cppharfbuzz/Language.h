@@ -28,19 +28,21 @@
 #define CPPHARFBUZZ_LANGUAGE_H_
 
 #include <cppharfbuzz/common.h>
+#include <cppharfbuzz/Handle.h>
 
 namespace harfbuzz
 {
 
-class Language
+class Language:
+    public Handle
 {
     private:
         void *m_ptr;
 
+    public:
         /// wrapper constructor wraps an hb language pointer
         Language(void* ptr);
 
-    public:
         /// returns a string representation of this language
         const char* to_string();
 

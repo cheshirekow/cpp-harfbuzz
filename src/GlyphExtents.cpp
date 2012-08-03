@@ -17,47 +17,69 @@
  *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Language.cpp
+ *  \file   GlyphExtents.cpp
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Language.h>
+#include "cppharfbuzz/GlyphExtents.h"
+
 #include <harfbuzz/hb.h>
 
 namespace harfbuzz
 {
 
-
-Language::Language(void* ptr):
+GlyphExtents::GlyphExtents(void* ptr):
     Handle(ptr)
 {
 
 }
 
-const char* Language::to_string()
+position_t& GlyphExtents::x_bearing()
 {
-    return hb_language_to_string( (hb_language_t)m_ptr );
+    return ((hb_glyph_extents_t*)m_ptr)->x_bearing;
 }
 
-Language Language::from_string(const char* str, int len)
+const position_t& GlyphExtents::x_bearing() const
 {
-    return Language( hb_language_from_string(str,len) );
+    return ((hb_glyph_extents_t*)m_ptr)->x_bearing;
 }
 
-Language Language::get_default()
+position_t& GlyphExtents::y_bearing()
 {
-    return Language( hb_language_get_default() );
+    return ((hb_glyph_extents_t*)m_ptr)->y_bearing;
 }
 
-Language Language::invalid()
+const position_t& GlyphExtents::y_bearing() const
 {
-    return Language( 0 );
+    return ((hb_glyph_extents_t*)m_ptr)->y_bearing;
+}
+
+position_t& GlyphExtents::width()
+{
+    return ((hb_glyph_extents_t*)m_ptr)->width;
+}
+
+const position_t& GlyphExtents::width() const
+{
+    return ((hb_glyph_extents_t*)m_ptr)->width;
+}
+
+position_t& GlyphExtents::height()
+{
+    return ((hb_glyph_extents_t*)m_ptr)->height;
+}
+
+const position_t& GlyphExtents::height() const
+{
+    return ((hb_glyph_extents_t*)m_ptr)->height;
 }
 
 
 
 
-} // namespace harfbuzz
+
+
+} // namespace freetype 

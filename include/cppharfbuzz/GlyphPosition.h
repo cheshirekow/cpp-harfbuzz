@@ -14,50 +14,53 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with Fontconfigmm.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with cppharfbuzz.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   Language.cpp
+ *  \file   GlyphPosition.h
  *
- *  \date   Jul 19, 2012
+ *  \date   Aug 2, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#include <cppharfbuzz/Language.h>
-#include <harfbuzz/hb.h>
+#ifndef HARFBUZZ_GLYPHPOSITION_H_
+#define HARFBUZZ_GLYPHPOSITION_H_
+
+#include <cppharfbuzz/common.h>
+#include <cppharfbuzz/Handle.h>
 
 namespace harfbuzz
 {
 
-
-Language::Language(void* ptr):
-    Handle(ptr)
+class GlyphPosition :
+    public Handle
 {
+    public:
+        GlyphPosition( void* ptr );
 
-}
+        position_t x_advance();
+        position_t y_advance();
+        position_t x_offset();
+        position_t y_offset();
+};
 
-const char* Language::to_string()
+
+class GlyphPositionArray :
+    public Handle
 {
-    return hb_language_to_string( (hb_language_t)m_ptr );
-}
+    private:
+        unsigned int m_length;
 
-Language Language::from_string(const char* str, int len)
-{
-    return Language( hb_language_from_string(str,len) );
-}
+    public:
+        GlyphPositionArray( void* ptr, unsigned int length );
 
-Language Language::get_default()
-{
-    return Language( hb_language_get_default() );
-}
+        unsigned int size();
 
-Language Language::invalid()
-{
-    return Language( 0 );
-}
+        GlyphPosition operator[](int idx );
+};
 
 
+} // namespace harfbuzz 
 
-
-} // namespace harfbuzz
+#endif // GLYPHPOSITION_H_
