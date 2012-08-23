@@ -82,6 +82,8 @@ int main( int argc, char** argv )
         std::cout << lineText << std::endl;
     }
 
+    output.render();
+
     ft::done(freetype);
     return 0;
 }

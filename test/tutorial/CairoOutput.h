@@ -38,19 +38,16 @@ namespace harfbuzz {
 namespace  hb_view {
 
 
-class CairoLine
+struct CairoLine
 {
-    private:
-        std::vector< Cairo::Glyph >         m_glyphs;
-        std::vector< Cairo::TextCluster >   m_clusters;
-        Cairo::TextClusterFlags             m_flags;
-        std::string                         m_utf8;
+    std::vector< Cairo::Glyph >         m_glyphs;
+    std::vector< Cairo::TextCluster >   m_clusters;
+    Cairo::TextClusterFlags             m_flags;
+    std::string                         m_utf8;
 
-    public:
-        CairoLine( Buffer buffer, std::string& text,
-                        double scale, bool utf8Clusters );
-        void get_advance( double& x, double& y );
-
+    CairoLine( Buffer buffer, std::string& text,
+                    double scale, bool utf8Clusters );
+    void get_advance( double& x, double& y );
 };
 
 
@@ -59,10 +56,15 @@ class CairoOutput
     private:
         Cairo::RefPtr<Cairo::ScaledFont>    m_font;
         std::list< CairoLine* >             m_lines;
+
+        std::string     m_filename;
+        std::string     m_format;
+
         double m_lineSpace;
         double m_scale;
         double m_margin[4];
         bool   m_utf8Clusters;
+        bool   m_annotate;
 
         void get_surface_size( double& w, double& h);
         void parse_margin( std::string& value );
@@ -72,6 +74,7 @@ class CairoOutput
         ~CairoOutput();
 
         void add_line( Buffer buffer, std::string& text);
+        void render();
 };
 
 

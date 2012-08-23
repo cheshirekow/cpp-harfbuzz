@@ -33,7 +33,7 @@ namespace harfbuzz {
 namespace  hb_view {
 
 
-static const char utf8_mask[6] =
+static const unsigned char utf8_mask[6] =
 {
     0x80,    // 1000 0000
     0xE0,    // 1110 0000
@@ -43,7 +43,7 @@ static const char utf8_mask[6] =
     0xFE     // 1111 1110
 };
 
-static const char utf8_check[6] =
+static const unsigned char utf8_check[6] =
 {
     0x00,   // 0xxx xxxx
     0xC0,   // 110x xxxx
@@ -54,20 +54,57 @@ static const char utf8_check[6] =
 };
 
 
+
+template < typename T >
+inline T highbit(T& t)
+{
+    return t = (((T)(-1)) >> 1) + 1;
+}
+
+template < typename T >
+std::ostream& bin(T& value, std::ostream &o)
+{
+    int i=0;
+    for ( T bit = highbit(bit); bit; bit >>= 1 )
+    {
+        if(i++ > 3)
+        {
+            i=0;
+            o << ' ';
+        }
+        o << ( ( value & bit ) ? '1' : '0' );
+    }
+    return o;
+}
+
+
 static const char* utf8_offset_to_pointer(const char* str, off_t offset)
 {
+    const unsigned char* uptr = (const unsigned char*)str;
     for (int i = 0; i < offset; i++)
     {
-        char c = *str;
+        unsigned char c = *str;
+        int foundMatch = 7;
         for (int j = 0; j < 6; j++)
         {
             if ((c & utf8_mask[j]) == utf8_check[j])
             {
                 str += j + 1;
+                foundMatch = j;
                 break;
             }
         }
 
+        if(foundMatch > 5)
+        {
+            std::cerr << "Warning, found malformed utf8 byte: ";
+            bin(c,std::cerr) << std::endl;
+            str++;
+        }
+        else
+        {
+            std::cerr << "matched " << foundMatch << "utf8 chars" << std::endl;
+        }
     }
 
     return str;
@@ -79,23 +116,29 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
     GlyphInfoArray glyphInfos = buffer.get_glyph_info();
     GlyphPositionArray glyphPositions = buffer.get_glyph_position();
     unsigned int num_glyphs = buffer.get_length();
+
     assert(glyphInfos.size() == num_glyphs);
     assert(glyphPositions.size() == num_glyphs);
-    Cairo::Glyph defaultGlyph =
-    { 0, 0, 0 };
+
+    Cairo::Glyph defaultGlyph = { 0, 0, 0 };
+
     m_glyphs.resize(num_glyphs + 1, defaultGlyph);
     m_utf8 = text;
+
     unsigned int num_clusters = num_glyphs ? 1 : 0;
     for (unsigned int i = 1; i < num_glyphs; i++)
     {
-        if (glyphInfos[i].cluster() != glyphInfos[i].cluster())
+        if (glyphInfos[i].cluster() != glyphInfos[i-1].cluster())
             num_clusters++;
     }
+
     position_t x = 0;
     position_t y = 0;
-    Cairo::TextCluster defaultCluster =
-    { 0, 0 };
+
+    Cairo::TextCluster defaultCluster = { 0, 0 };
     m_clusters.resize(num_clusters, defaultCluster);
+
+
     for (unsigned int i = 0; i < glyphInfos.size(); i++)
     {
         m_glyphs[i].index = glyphInfos[i].codepoint();
@@ -126,8 +169,7 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
             {
                 if (glyphInfos[i].cluster() != glyphInfos[i + 1].cluster())
                 {
-                    assert(
-                            glyphInfos[i].cluster()
+                    assert( glyphInfos[i].cluster()
                                     > glyphInfos[i + 1].cluster());
                     if (utf8Clusters)
                     {
@@ -158,8 +200,7 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
             {
                 if (glyphInfos[i].cluster() != glyphInfos[i - 1].cluster())
                 {
-                    assert(
-                            glyphInfos[i].cluster()
+                    assert( glyphInfos[i].cluster()
                                     > glyphInfos[i - 1].cluster());
                     if (utf8Clusters)
                     {
@@ -170,7 +211,7 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
                     {
                         end = utf8_offset_to_pointer(start,
                                 glyphInfos[i].cluster()
-                                        - glyphInfos[i + 1].cluster());
+                                        - glyphInfos[i - 1].cluster());
                     }
 
                     m_clusters[cluster].num_bytes = end - start;
@@ -200,17 +241,26 @@ CairoOutput::CairoOutput(CommandLine& cmd, Font font)
     m_utf8Clusters  = cmd.utf8Clusters.getValue();
     parse_margin( cmd.margin.getValue() );
 
+    m_filename      = cmd.outputFilename.getValue();
+    m_format        = cmd.outputFormat.getValue();
+    m_annotate      = cmd.annotate.getValue();
+
 
     freetype::Face ft_face = font.get_ft_face();
-    Cairo::RefPtr < Cairo::FontFace > cairo_face = Cairo::FtFontFace::create(
-            (FT_Face)(ft_face.get_ptr()), 0);
-    Cairo::Matrix ctm = Cairo::identity_matrix();
-    Cairo::Matrix font_matrix = Cairo::scaling_matrix(m_scale, m_scale);
+    Cairo::RefPtr < Cairo::FontFace > cairo_face =
+            Cairo::FtFontFace::create( (FT_Face)(ft_face.get_ptr()), 0);
+
+    Cairo::Matrix ctm           = Cairo::identity_matrix();
+    Cairo::Matrix font_matrix   = Cairo::scaling_matrix(m_scale, m_scale);
     Cairo::FontOptions font_options;
+
     font_options.set_hint_style(Cairo::HINT_STYLE_NONE);
     font_options.set_hint_metrics(Cairo::HINT_METRICS_OFF);
-    m_font = Cairo::ScaledFont::create(cairo_face, font_matrix, ctm,
-            font_options);
+    m_font = Cairo::ScaledFont::create(
+                cairo_face, font_matrix, ctm, font_options);
+
+    Cairo::FontExtents font_extents;
+    m_font->extents(font_extents);
 }
 
 CairoOutput::~CairoOutput()
@@ -226,6 +276,16 @@ CairoOutput::~CairoOutput()
 void CairoOutput::get_surface_size(double& w, double& h)
 {
     Cairo::FontExtents ext;
+
+    if( !m_font )
+    {
+        std::cerr << "Something happened to the font "
+                     "when you werne't looking" << std::endl;
+        w = 0;
+        h = 0;
+        return;
+    }
+
     m_font->extents(ext);
 
     h = m_lines.size() * ( ext.height + m_lineSpace ) - m_lineSpace;
@@ -262,6 +322,76 @@ void CairoOutput::add_line(Buffer buffer, std::string& text)
     m_lines.push_back(pLine);
 }
 
+void CairoOutput::render()
+{
+    Cairo::RefPtr<Cairo::Surface> surface;
+    double w,h;
+    get_surface_size(w,h);
+
+    if( m_format.compare("png") )
+        surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w,h );
+    else if(m_format.compare("svg"))
+        surface = Cairo::SvgSurface::create(m_filename,w,h);
+    else if(m_format.compare("pdf"))
+        surface = Cairo::PdfSurface::create(m_filename,w,h);
+    else
+    {
+        std::cerr << "Unknown output format" << std::endl;
+        return;
+    }
+
+    Cairo::RefPtr<Cairo::Context> ctx = Cairo::Context::create(surface);
+    ctx->set_scaled_font(m_font);
+
+    ctx->save();
+    ctx->translate(m_margin[0],m_margin[1]);
+
+    Cairo::FontExtents font_extents;
+    m_font->extents(font_extents);
+
+    double descent = font_extents.height - font_extents.ascent;
+    ctx->translate(0,-descent);
+
+    for(std::list<CairoLine*>::iterator ipLine = m_lines.begin();
+            ipLine != m_lines.end(); ipLine++ )
+    {
+        if(m_annotate)
+        {
+            ctx->save();
+
+            // draw glyph origins;
+            ctx->set_source_rgba(1.,0.,0.,0.5);
+            ctx->set_line_width(5);
+            ctx->set_line_cap( Cairo::LINE_CAP_ROUND );
+            for( int i=0; i < (*ipLine)->m_glyphs.size(); i++)
+            {
+                ctx->move_to( (*ipLine)->m_glyphs[i].x,
+                              (*ipLine)->m_glyphs[i].y );
+                ctx->rel_line_to(0,0);
+            }
+
+            ctx->stroke();
+            ctx->restore();
+        }
+
+        if( (*ipLine)->m_clusters.size() )
+        {
+            ctx->show_text_glyphs(
+                    (*ipLine)->m_utf8,
+                    (*ipLine)->m_glyphs,
+                    (*ipLine)->m_clusters,
+                    (*ipLine)->m_flags );
+        }
+        else
+        {
+            ctx->show_glyphs( (*ipLine)->m_glyphs );
+        }
+
+    }
+
+    ctx->restore();
+
+}
 
 
 
