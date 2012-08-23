@@ -40,22 +40,22 @@ GlyphPosition::GlyphPosition( void* ptr ):
 
 
 
-position_t GlyphPosition::x_advance()
+position_t& GlyphPosition::x_advance()
 {
     return ((hb_glyph_position_t*)m_ptr)->x_advance;
 }
 
-position_t GlyphPosition::y_advance()
+position_t& GlyphPosition::y_advance()
 {
     return ((hb_glyph_position_t*)m_ptr)->y_advance;
 }
 
-position_t GlyphPosition::x_offset()
+position_t& GlyphPosition::x_offset()
 {
     return ((hb_glyph_position_t*)m_ptr)->x_offset;
 }
 
-position_t GlyphPosition::y_offset()
+position_t& GlyphPosition::y_offset()
 {
     return ((hb_glyph_position_t*)m_ptr)->y_offset;
 }

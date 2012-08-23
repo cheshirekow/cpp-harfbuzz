@@ -39,10 +39,10 @@ class GlyphPosition :
     public:
         GlyphPosition( void* ptr );
 
-        position_t x_advance();
-        position_t y_advance();
-        position_t x_offset();
-        position_t y_offset();
+        position_t& x_advance();
+        position_t& y_advance();
+        position_t& x_offset();
+        position_t& y_offset();
 };
 
 

@@ -53,36 +53,39 @@ int main( int argc, char** argv )
         return -1;
     }
 
-    InputReader inputReader(cmd);
-    FontReader  fontReader(cmd, freetype);
-    Shaper      shaper(cmd);
-
-    std::string lineText;
-    hb::Buffer  buffer = hb::Buffer::create();
-    hb::Font    font   = fontReader.get_font();
-
-    CairoOutput output(cmd,font);
-
-    // no need to print error message as the font reader will do that
-    // when ever it encounters it's error... we just need to bail here
-    if( !font.is_valid() ){ return -1; }
-
-    // read lines from the input stream
-    while( inputReader.getLine(lineText) )
+    // artificial scope
     {
-        shaper.populate_buffer(lineText);
+        InputReader inputReader(cmd);
+        FontReader  fontReader(cmd, freetype);
+        Shaper      shaper(cmd);
 
-        if( !shaper.shape(font) )
+        std::string lineText;
+        hb::Buffer  buffer = hb::Buffer::create();
+        hb::Font    font   = fontReader.get_font();
+
+        CairoOutput output(cmd,font);
+
+        // no need to print error message as the font reader will do that
+        // when ever it encounters it's error... we just need to bail here
+        if( !font.is_valid() ){ return -1; }
+
+        // read lines from the input stream
+        while( inputReader.getLine(lineText) )
         {
-            std::cerr << "Shape failed" << std::endl;
-            break;
+            shaper.populate_buffer(lineText);
+
+            if( !shaper.shape(font) )
+            {
+                std::cerr << "Shape failed" << std::endl;
+                break;
+            }
+
+            output.add_line(shaper.get_buffer(),lineText);
+            std::cout << lineText << std::endl;
         }
 
-        output.add_line(shaper.get_buffer(),lineText);
-        std::cout << lineText << std::endl;
+        output.render();
     }
-
-    output.render();
 
     ft::done(freetype);
     return 0;

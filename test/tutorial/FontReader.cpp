@@ -128,6 +128,8 @@ FontReader::FontReader(CommandLine& cmd, freetype::Library freetype)
 
 FontReader::~FontReader()
 {
+    return;
+
     munmap(m_mapAddr,m_mapLength);
     close(m_fd);
 }

@@ -101,10 +101,6 @@ static const char* utf8_offset_to_pointer(const char* str, off_t offset)
             bin(c,std::cerr) << std::endl;
             str++;
         }
-        else
-        {
-            std::cerr << "matched " << foundMatch << "utf8 chars" << std::endl;
-        }
     }
 
     return str;
@@ -113,16 +109,17 @@ static const char* utf8_offset_to_pointer(const char* str, off_t offset)
 CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
         bool utf8Clusters)
 {
-    GlyphInfoArray glyphInfos = buffer.get_glyph_info();
-    GlyphPositionArray glyphPositions = buffer.get_glyph_position();
+    GlyphInfoArray      glyphInfos      = buffer.get_glyph_info();
+    GlyphPositionArray  glyphPositions  = buffer.get_glyph_position();
+
     unsigned int num_glyphs = buffer.get_length();
 
-    assert(glyphInfos.size() == num_glyphs);
+    assert(glyphInfos.size()     == num_glyphs);
     assert(glyphPositions.size() == num_glyphs);
 
     Cairo::Glyph defaultGlyph = { 0, 0, 0 };
 
-    m_glyphs.resize(num_glyphs + 1, defaultGlyph);
+    m_glyphs.resize(num_glyphs, defaultGlyph);
     m_utf8 = text;
 
     unsigned int num_clusters = num_glyphs ? 1 : 0;
@@ -131,6 +128,9 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
         if (glyphInfos[i].cluster() != glyphInfos[i-1].cluster())
             num_clusters++;
     }
+
+    std::cerr << "num clusters: " << num_clusters
+              << ", num bytes: " << text.size() << std::endl;
 
     position_t x = 0;
     position_t y = 0;
@@ -141,15 +141,24 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
 
     for (unsigned int i = 0; i < glyphInfos.size(); i++)
     {
+        std::cerr << "Glyph [" << i << "]:"
+                   << "\n    index: " << glyphInfos[i].codepoint()
+                   << "\n    x-off: " << glyphPositions[i].x_offset()
+                   << "\n    y-off: " << glyphPositions[i].y_offset()
+                   << "\n    x-adv: " << glyphPositions[i].x_advance()
+                   << "\n    y-adv: " << glyphPositions[i].y_advance()
+                   << std::endl;
+
         m_glyphs[i].index = glyphInfos[i].codepoint();
         m_glyphs[i].x = (glyphPositions[i].x_offset() + x) * scale;
         m_glyphs[i].y = (-glyphPositions[i].y_offset() + y) * scale;
         x += glyphPositions[i].x_advance();
         y += -glyphPositions[i].y_advance();
     }
-    m_glyphs.back().index = -1;
-    m_glyphs.back().x = x * scale;
-    m_glyphs.back().y = y * scale;
+
+    x_extent = x*scale;
+    y_extent = y*scale;
+
     if (num_clusters)
     {
         bool backward = buffer.get_direction().is_backword();
@@ -225,18 +234,22 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
             m_clusters[cluster].num_bytes = m_utf8.c_str() + m_utf8.size()
                     - start;
         }
+
+        std::cout << "num_clusters: " << num_clusters << " cluster index: " << cluster
+                  << std::endl;
     }
 }
 
 void CairoLine::get_advance(double& x, double& y)
 {
-    m_glyphs.back().x;
-    m_glyphs.back().y;
+    x = x_extent;
+    y = y_extent;
 }
 
 CairoOutput::CairoOutput(CommandLine& cmd, Font font)
 {
-    m_scale         = cmd.fontSize.getValue() / font.get_face().get_upem();
+    m_scale         = cmd.fontSize.getValue() /
+                        (double)font.get_face().get_upem();
     m_lineSpace     = cmd.linespace.getValue();
     m_utf8Clusters  = cmd.utf8Clusters.getValue();
     parse_margin( cmd.margin.getValue() );
@@ -328,11 +341,11 @@ void CairoOutput::render()
     double w,h;
     get_surface_size(w,h);
 
-    if( m_format.compare("png") )
+    if( m_format.compare("png") == 0 )
         surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w,h );
-    else if(m_format.compare("svg"))
+    else if(m_format.compare("svg") == 0)
         surface = Cairo::SvgSurface::create(m_filename,w,h);
-    else if(m_format.compare("pdf"))
+    else if(m_format.compare("pdf") == 0)
         surface = Cairo::PdfSurface::create(m_filename,w,h);
     else
     {
@@ -376,6 +389,21 @@ void CairoOutput::render()
 
         if( (*ipLine)->m_clusters.size() )
         {
+            std::cerr << "Showing: "
+                      << "\n      width: " << w
+                      << "\n     height: " << h
+                      << "\n     glyphs: " << (*ipLine)->m_glyphs.size()
+                      << "\n   clusters: " << (*ipLine)->m_clusters.size()
+                      << std::endl;
+            for(int i=0; i < (*ipLine)->m_glyphs.size(); i++)
+            {
+                std::cerr << i << ": "
+                          <<  "\n   index: " << (*ipLine)->m_glyphs[i].index
+                          <<  "\n       x: " << (*ipLine)->m_glyphs[i].x
+                          <<  "\n       y: " << (*ipLine)->m_glyphs[i].y
+                          << std::endl;
+            }
+
             ctx->show_text_glyphs(
                     (*ipLine)->m_utf8,
                     (*ipLine)->m_glyphs,
@@ -391,6 +419,14 @@ void CairoOutput::render()
 
     ctx->restore();
 
+    std::cerr << "HERE" << std::endl;
+
+    if( m_format.compare("png") == 0 )
+    {
+        Cairo::RefPtr<Cairo::ImageSurface> imgSurface =
+                Cairo::RefPtr<Cairo::ImageSurface>::cast_static(surface);
+        imgSurface->write_to_png(m_filename);
+    }
 }
 
 

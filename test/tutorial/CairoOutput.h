@@ -45,6 +45,9 @@ struct CairoLine
     Cairo::TextClusterFlags             m_flags;
     std::string                         m_utf8;
 
+    double  x_extent;
+    double  y_extent;
+
     CairoLine( Buffer buffer, std::string& text,
                     double scale, bool utf8Clusters );
     void get_advance( double& x, double& y );
