@@ -17,48 +17,35 @@
  *  along with cppharfbuzz.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   GlyphInfo.h
+ *  \file   InputReader.h
  *
- *  \date   Aug 2, 2012
+ *  \date   Aug 23, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#ifndef HARFBUZZ_GLYPHINFO_H_
-#define HARFBUZZ_GLYPHINFO_H_
+#ifndef HARFBUZZ_HB_VIEW_INPUTREADER_H_
+#define HARFBUZZ_HB_VIEW_INPUTREADER_H_
 
-#include <cppharfbuzz/common.h>
-#include <cppharfbuzz/Handle.h>
+#include "CommandLine.h"
+#include <istream>
 
-namespace harfbuzz
-{
-
-
-
-class GlyphInfo:
-    public Handle
-{
-    public:
-        GlyphInfo(void* ptr);
-
-        codepoint_t&    codepoint();
-        mask_t&         mask();
-        uint32_t&       cluster();
-};
+namespace harfbuzz {
+namespace  hb_view {
 
 
-class GlyphInfoArray:
-    public Handle
+class InputReader
 {
     private:
-        unsigned int m_length;
+        enum InputType{ TEXT, FILE, STDIN };
+
+        std::istream*       m_ptrStream;
+        InputType           m_inputType;
 
     public:
-        GlyphInfoArray( void* ptr, unsigned int length );
-
-        unsigned int size();
-
-        GlyphInfo operator[](int idx);
+        InputReader(CommandLine& cmd);
+        ~InputReader();
+        bool getLine(std::string& str);
 };
 
 
@@ -66,7 +53,7 @@ class GlyphInfoArray:
 
 
 
-
+} // namespace hb_view 
 } // namespace harfbuzz 
 
-#endif // GLYPHINFO_H_
+#endif // INPUTREADER_H_

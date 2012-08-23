@@ -28,6 +28,7 @@
 
 #include <cppharfbuzz/common.h>
 #include <cppharfbuzz/Direction.h>
+#include <cppharfbuzz/Face.h>
 #include <cppharfbuzz/GlyphExtents.h>
 #include <cppharfbuzz/Handle.h>
 #include <cppfreetype/cppfreetype.h>
@@ -160,15 +161,63 @@ class Font:
     public Handle
 {
     private:
+        /// increase the reference count by one
+        /**
+         *  @note reference counting is null-safe. If the Font object is in
+         *        fact porting around a null pointer then this method does
+         *        nothing
+         */
         void reference();
+
+        /// decrease the reference count by one and destroy if necessary
+        /**
+         *  @note reference counting is null-safe. If the Font object is in
+         *        fact porting around a null pointer then this method does
+         *        nothing
+         */
         void drop();
 
     public:
-        Font( void* ptr, bool reference=false );
+        /// construct a new font object which is a handle for the underlying
+        /// harfbuzz object
+        /**
+         *  @param ptr          underlying harfbuzz_font_t*
+         *  @param reference    if true, increase the reference count
+         */
+        Font( void* ptr=0, bool reference=false );
+
+        /// copy constructor, create a new font object handle from a different
+        /// font object handle
+        /**
+         *  @param other    the font object handle to copy
+         *
+         *  Since font's are reference counted in the c-library, this function
+         *  handles dropping any current reference and taking ownerhip of
+         *  a reference to the underlying harfbuzz_font_t stored in \p other
+         */
         Font( const Font& other );
+
+        /// destructor, handles decrementing reference count
+        /**
+         *  Since font's are reference counted in the c-library, this function
+         *  handles dropping any current reference and taking ownerhip of
+         *  a reference to the underlying harfbuzz_font_t stored in \p other
+         */
         ~Font();
 
+        /// assignment operator, copy font object pointer from a different
+        /// font object handle
+        /**
+         *  @param other    the font object handle to copy
+         *
+         *  Since font's are reference counted in the c-library, this function
+         *  handles dropping any current reference and taking ownerhip of
+         *  a reference to the underlying harfbuzz_font_t stored in \p other
+         */
         Font& operator=( const Font& other );
+
+        /// drops the reference to the underlying font object, set's the
+        /// stored pointer to null
         void  invalidate();
 
         bool    get_glyph( codepoint_t  unicode,
@@ -251,15 +300,18 @@ class Font:
         void set_ppem( unsigned int x, unsigned int y );
         void get_ppem( unsigned int& x, unsigned int& y );
 
+        /// create a harfbuzz font from a harfbuzz face
+        static Font create( Face face );
 
         /// create a harfbuzz font directly from a freetype face
         static Font create_ft(  freetype::Face  ft_face,
-                                destroy_func_t  ft_destroy );
+                                destroy_func_t  ft_destroy=0 );
 
         /// make hb_font use freetype internally to implement font
         /// functions
         void set_ft_funcs();
 
+        Face get_face();
         freetype::Face get_ft_face();
 
 

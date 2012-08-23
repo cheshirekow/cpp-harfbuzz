@@ -41,7 +41,7 @@ class Language:
 
     public:
         /// wrapper constructor wraps an hb language pointer
-        Language(void* ptr);
+        Language(void* ptr=0);
 
         /// returns a string representation of this language
         const char* to_string();

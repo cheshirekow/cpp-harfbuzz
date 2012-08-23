@@ -17,48 +17,52 @@
  *  along with cppharfbuzz.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   GlyphInfo.h
+ *  \file   Shaper.h
  *
- *  \date   Aug 2, 2012
+ *  \date   Aug 23, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#ifndef HARFBUZZ_GLYPHINFO_H_
-#define HARFBUZZ_GLYPHINFO_H_
+#ifndef HARFBUZZ_HB_VIEW_SHAPER_H_
+#define HARFBUZZ_HB_VIEW_SHAPER_H_
 
-#include <cppharfbuzz/common.h>
-#include <cppharfbuzz/Handle.h>
+#include "CommandLine.h"
 
-namespace harfbuzz
-{
-
-
-
-class GlyphInfo:
-    public Handle
-{
-    public:
-        GlyphInfo(void* ptr);
-
-        codepoint_t&    codepoint();
-        mask_t&         mask();
-        uint32_t&       cluster();
-};
+#include <cppharfbuzz/Buffer.h>
+#include <cppharfbuzz/Feature.h>
+#include <cppharfbuzz/Font.h>
 
 
-class GlyphInfoArray:
-    public Handle
+namespace harfbuzz {
+namespace  hb_view {
+
+
+
+
+
+class Shaper
 {
     private:
-        unsigned int m_length;
+        Buffer m_buffer;
+
+        Direction       m_direction;
+        Script          m_script;
+        Language        m_language;
+        FeatureArray    m_features;
+        bool            m_utf8Clusters;
+        char*               m_shapersStorage;
+        const char* const*  m_shapers;
+
+        void setup_buffer();
 
     public:
-        GlyphInfoArray( void* ptr, unsigned int length );
+        Shaper(CommandLine& cmd);
+        ~Shaper();
 
-        unsigned int size();
-
-        GlyphInfo operator[](int idx);
+        void populate_buffer( std::string& str );
+        bool shape( Font font );
+        Buffer get_buffer();
 };
 
 
@@ -66,7 +70,7 @@ class GlyphInfoArray:
 
 
 
-
+} // namespace hb_view 
 } // namespace harfbuzz 
 
-#endif // GLYPHINFO_H_
+#endif // SHAPER_H_

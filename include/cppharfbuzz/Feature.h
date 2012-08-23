@@ -74,7 +74,7 @@ class Feature :
     public Handle
 {
     public:
-        Feature( void* ptr );
+        Feature( void* ptr=0 );
 
         Tag             tag();
         void            tag(Tag tag);

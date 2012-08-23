@@ -39,17 +39,17 @@ GlyphInfo::GlyphInfo(void* ptr):
 
 
 
-codepoint_t GlyphInfo::codepoint()
+codepoint_t& GlyphInfo::codepoint()
 {
     return ((hb_glyph_info_t*)m_ptr)->codepoint;
 }
 
-mask_t GlyphInfo::mask()
+mask_t& GlyphInfo::mask()
 {
     return ((hb_glyph_info_t*)m_ptr)->mask;
 }
 
-uint32_t GlyphInfo::cluster()
+uint32_t& GlyphInfo::cluster()
 {
     return ((hb_glyph_info_t*)m_ptr)->cluster;
 }

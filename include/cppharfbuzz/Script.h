@@ -42,7 +42,7 @@ class Script
     public:
         /// create a new script object which is just an unsigned 32 bit
         /// number with some methods attached
-        Script(uint32_t value);
+        Script(uint32_t value=Tag::NONE);
 
         /// return the stored integer value
         uint32_t value();

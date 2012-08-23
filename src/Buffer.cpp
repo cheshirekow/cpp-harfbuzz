@@ -33,12 +33,14 @@ namespace harfbuzz
 
 void Buffer::reference()
 {
-    hb_buffer_reference( (hb_buffer_t*) (m_ptr));
+    if(m_ptr)
+        hb_buffer_reference( (hb_buffer_t*) (m_ptr));
 }
 
 void Buffer::drop()
 {
-    hb_buffer_destroy((hb_buffer_t*) (m_ptr));
+    if(m_ptr)
+        hb_buffer_destroy((hb_buffer_t*) (m_ptr));
 }
 
 Buffer::Buffer(void* ptr, bool reference) :
@@ -70,6 +72,11 @@ void Buffer::invalidate()
 {
     drop();
     m_ptr = 0;
+}
+
+bool Buffer::is_valid()
+{
+    return (m_ptr != 0);
 }
 
 Buffer Buffer::create()

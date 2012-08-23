@@ -275,6 +275,11 @@ void Font::get_ppem(unsigned int& x, unsigned int& y)
     hb_font_get_ppem( (hb_font_t*)m_ptr, &x, &y );
 }
 
+Font Font::create( Face face )
+{
+    return Font( hb_font_create( (hb_face_t*)face.get_ptr() ) );
+}
+
 Font Font::create_ft(   freetype::Face  ft_face,
                         destroy_func_t  ft_destroy )
 {
@@ -289,9 +294,20 @@ void Font::set_ft_funcs()
     hb_ft_font_set_funcs( (hb_font_t*)m_ptr );
 }
 
+Face Font::get_face()
+{
+    return Face(
+            hb_font_get_face( (hb_font_t*)m_ptr ),
+            true );
+}
+
 freetype::Face Font::get_ft_face()
 {
-    return freetype::Face( hb_ft_font_get_face( (hb_font_t*)m_ptr ) );
+    // FIXME: I think we need to increment the reference count because I
+    // dont thikn that harfbuzz does this for us
+    return freetype::Face(
+                hb_ft_font_get_face( (hb_font_t*)m_ptr ),
+                true );
 }
 
 

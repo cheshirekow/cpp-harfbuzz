@@ -62,7 +62,7 @@ class Direction
     public:
         /// create a direction from a value, (note, you should probably use
         /// the predefined constants in the direction:: namespace
-        Direction( Value value );
+        Direction( Value value=INVALID );
 
         /// return a direction which is opposite to this one
         Direction reverse();
@@ -78,7 +78,7 @@ class Direction
         bool is_backword();
         bool is_valid();
 
-        static Direction from_string( const char* str, int len);
+        static Direction from_string( const char* str, int len=-1);
 };
 
 

@@ -60,20 +60,20 @@ class CommandLine
         TCLAP::ValueArg<std::string>    text;
         TCLAP::ValueArg<std::string>    textFile;
         TCLAP::SwitchArg                listShapers;
-        TCLAP::MultiArg<std::string>    shapers;
+        TCLAP::ValueArg<std::string>    shapers;
         TCLAP::ValueArg<std::string>    direction;
         TCLAP::ValueArg<std::string>    language;
         TCLAP::ValueArg<std::string>    script;
         TCLAP::SwitchArg                utf8Clusters;
         TCLAP::SwitchArg                normalizeGlyphs;
-        TCLAP::MultiArg<std::string>    features;
+        TCLAP::ValueArg<std::string>    features;
         TCLAP::ValueArg<std::string>    outputFilename;
         TCLAP::ValueArg<std::string>    outputFormat;
         TCLAP::SwitchArg                annotate;
         TCLAP::ValueArg<std::string>    background;
         TCLAP::ValueArg<std::string>    foreground;
         TCLAP::ValueArg<int>            linespace;
-        TCLAP::ValueArg<int>            margin;
+        TCLAP::ValueArg<std::string>    margin;
         TCLAP::ValueArg<int>            fontSize;
 
 

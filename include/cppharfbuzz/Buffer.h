@@ -62,11 +62,12 @@ class Buffer:
         void drop();
 
     public:
-        Buffer(void* ptr, bool reference=false);
+        Buffer(void* ptr=0, bool reference=false);
         Buffer( const Buffer& other );
         ~Buffer();
         Buffer& operator=( const Buffer& other );
         void invalidate();
+        bool is_valid();
 
         static Buffer create();
         static Buffer get_empty();

@@ -17,56 +17,49 @@
  *  along with cppharfbuzz.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- *  \file   GlyphInfo.h
+ *  \file   FontReader.h
  *
- *  \date   Aug 2, 2012
+ *  \date   Aug 23, 2012
  *  \author Josh Bialkowski (jbialk@mit.edu)
  *  \brief  
  */
 
-#ifndef HARFBUZZ_GLYPHINFO_H_
-#define HARFBUZZ_GLYPHINFO_H_
+#ifndef HARFBUZZ_HB_VIEW_FONTREADER_H_
+#define HARFBUZZ_HB_VIEW_FONTREADER_H_
 
-#include <cppharfbuzz/common.h>
-#include <cppharfbuzz/Handle.h>
+#include "CommandLine.h"
 
-namespace harfbuzz
-{
+#include <cppfreetype/cppfreetype.h>
+#include <cppharfbuzz/Font.h>
+#include <cstddef>
 
-
-
-class GlyphInfo:
-    public Handle
-{
-    public:
-        GlyphInfo(void* ptr);
-
-        codepoint_t&    codepoint();
-        mask_t&         mask();
-        uint32_t&       cluster();
-};
+namespace harfbuzz {
+namespace  hb_view {
 
 
-class GlyphInfoArray:
-    public Handle
+
+
+class FontReader
 {
     private:
-        unsigned int m_length;
+        freetype::Face m_ft_face;
+        Font    m_font;
+        int     m_fd;
+        off_t   m_mapLength;
+        void*   m_mapAddr;
 
     public:
-        GlyphInfoArray( void* ptr, unsigned int length );
+        FontReader(CommandLine& cmd, freetype::Library freetype);
+        ~FontReader();
 
-        unsigned int size();
-
-        GlyphInfo operator[](int idx);
+        Font get_font();
 };
 
 
 
 
 
-
-
+} // namespace hb_view 
 } // namespace harfbuzz 
 
-#endif // GLYPHINFO_H_
+#endif // FONTREADER_H_

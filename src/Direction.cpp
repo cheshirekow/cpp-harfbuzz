@@ -47,6 +47,12 @@
 namespace harfbuzz {
 
 
+Direction::Direction(Value value):
+    m_value(value)
+{
+
+}
+
 const char* Direction::to_string()
 {
     return hb_direction_to_string( (hb_direction_t)m_value );
