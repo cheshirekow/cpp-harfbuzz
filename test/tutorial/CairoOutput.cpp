@@ -129,8 +129,8 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
             num_clusters++;
     }
 
-    std::cerr << "num clusters: " << num_clusters
-              << ", num bytes: " << text.size() << std::endl;
+//    std::cerr << "num clusters: " << num_clusters
+//              << ", num bytes: " << text.size() << std::endl;
 
     position_t x = 0;
     position_t y = 0;
@@ -141,13 +141,14 @@ CairoLine::CairoLine(Buffer buffer, std::string& text, double scale,
 
     for (unsigned int i = 0; i < glyphInfos.size(); i++)
     {
-        std::cerr << "Glyph [" << i << "]:"
-                   << "\n    index: " << glyphInfos[i].codepoint()
-                   << "\n    x-off: " << glyphPositions[i].x_offset()
-                   << "\n    y-off: " << glyphPositions[i].y_offset()
-                   << "\n    x-adv: " << glyphPositions[i].x_advance()
-                   << "\n    y-adv: " << glyphPositions[i].y_advance()
-                   << std::endl;
+
+//        std::cerr << "Glyph [" << i << "]:"
+//                   << "\n    index: " << glyphInfos[i].codepoint()
+//                   << "\n    x-off: " << glyphPositions[i].x_offset()
+//                   << "\n    y-off: " << glyphPositions[i].y_offset()
+//                   << "\n    x-adv: " << glyphPositions[i].x_advance()
+//                   << "\n    y-adv: " << glyphPositions[i].y_advance()
+//                   << std::endl;
 
         m_glyphs[i].index = glyphInfos[i].codepoint();
         m_glyphs[i].x = (glyphPositions[i].x_offset() + x) * scale;
@@ -368,6 +369,12 @@ void CairoOutput::render()
     for(std::list<CairoLine*>::iterator ipLine = m_lines.begin();
             ipLine != m_lines.end(); ipLine++ )
     {
+        if (ipLine != m_lines.begin())
+        {
+            ctx->translate( 0, m_lineSpace );
+            ctx->translate( 0, font_extents.height );
+        }
+
         if(m_annotate)
         {
             ctx->save();
@@ -397,11 +404,11 @@ void CairoOutput::render()
                       << std::endl;
             for(int i=0; i < (*ipLine)->m_glyphs.size(); i++)
             {
-                std::cerr << i << ": "
-                          <<  "\n   index: " << (*ipLine)->m_glyphs[i].index
-                          <<  "\n       x: " << (*ipLine)->m_glyphs[i].x
-                          <<  "\n       y: " << (*ipLine)->m_glyphs[i].y
-                          << std::endl;
+//                std::cerr << i << ": "
+//                          <<  "\n   index: " << (*ipLine)->m_glyphs[i].index
+//                          <<  "\n       x: " << (*ipLine)->m_glyphs[i].x
+//                          <<  "\n       y: " << (*ipLine)->m_glyphs[i].y
+//                          << std::endl;
             }
 
             ctx->show_text_glyphs(

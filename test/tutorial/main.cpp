@@ -32,6 +32,7 @@
 
 #include <cppfreetype/Library.h>
 #include <cppharfbuzz/Buffer.h>
+#include <cppharfbuzz/shape.h>
 
 
 
@@ -43,6 +44,16 @@ int main( int argc, char** argv )
 {
     CommandLine cmd;
     cmd.parse(argc,argv);
+
+    // if we need to list shapers do that now
+    if(cmd.listShapers.getValue())
+    {
+        for (const char **shaper = hb::list_shapers (); *shaper; shaper++)
+            std::cout << *shaper << "\n";
+        std::cout << std::endl;
+        return 0;
+    }
+
 
     // initialize freetype
     ft::Error_t ft_error;
